@@ -1,0 +1,57 @@
+version: "3.4"
+
+services:
+  mimamori.backend:
+    container_name: mimamori.backend
+    image: ${DOCKER_REGISTRY-}mimamori.backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "30001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+;
+    networks:
+      - mimamori
+
+  mimamori.mssqlserver:
+    container_name: mimamori.mssqlserver
+    hostname: mimamori
+    ports:
+      - "52126:1433"
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=j2hcn6sU
+      - MSSQL_PID=Express
+      - MSSQL_LCID=1041
+      - MSSQL_COLLATION=Japanese_CI_AS
+      - DBNAME=Hangfire
+    volumes:
+      - "./mssqlserver/data:/var/opt/mssql/data"
+      - "./mssqlserver/log:/var/opt/mssql/log"
+      - "./mssqlserver/secrets:/var/opt/mssql/secrets"
+    restart: always
+    networks:
+      - mimamori
+
+  mimamori.mongodb:
+    container_name: "mimamori.mongodb"
+    hostname: mongodb
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongodb/db:/data/db
+      - ./mongodb/configdb:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - mimamori
+
+networks:
+  mimamori:
+    driver: bridge
