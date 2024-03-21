@@ -9,8 +9,4 @@ public interface IPresenceService
     Task<PresenceDto?> GetAsync(Guid id);
 
     Task CreateAsync(PresenceDto newPresence);
-
-    Task UpdateAsync(Guid id, PresenceDto updatedPresence);
-
-    Task RemoveAsync(Guid id);
 }

@@ -48,7 +48,7 @@ mssqlserver/log
 mssqlserver/secrets
 
 #mongodb
-mongodb
+/mongodb
 
 #Local
 appsettings.Local.json

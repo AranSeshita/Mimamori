@@ -32,12 +32,14 @@ public class PresenceGrain : Grain, IPresenceGrain
         var presence = await _graphServiceClient.Users[userId].Presence.GetAsync();
         return _mapper.Map<PresenceDto>(presence);
     }
-    public async Task StorePresence(string tenantId, string userId)
+    public async Task StorePresence(string tenantId, string userId, string jobId)
     {
         var client = InitializeGraphClient(tenantId);
         _logger.LogInformation($"Grain called: {_presenceGrain.GetGrainId()}");
-        var presence = await _graphServiceClient.Users[userId].Presence.GetAsync();
+        var presence = await client.Users[userId].Presence.GetAsync();
         var result = _mapper.Map<PresenceDto>(presence);
+        result.TenantId = tenantId;
+        result.JobId = jobId;
         await _presencesService.CreateAsync(result);
         _logger.LogInformation("Stored: " + JsonConvert.SerializeObject(result));
     }
@@ -45,9 +47,11 @@ public class PresenceGrain : Grain, IPresenceGrain
     public GraphServiceClient InitializeGraphClient(string tenantId)
     {
         var clientSecretCredential = new ClientSecretCredential(
-            _configuration.GetValue<string>("TenantId"),
+            tenantId,
             _configuration.GetValue<string>("ClientId"),
             _configuration.GetValue<string>("ClientSecret"));
-        return new GraphServiceClient(clientSecretCredential, new[] { "https://graph.microsoft.com/.default" });
+        var client = new GraphServiceClient(clientSecretCredential, new[] { "https://graph.microsoft.com/.default" });
+        _logger.LogInformation("GraphServiceClient initialized");
+        return client;
     }
 }

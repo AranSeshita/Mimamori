@@ -4,8 +4,7 @@ namespace Mimamori.Domains.Entities;
 
 public class BaseAttributes
 {
-    [BsonId]
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTime CreatedOn { get; set; }
-    public DateTime UpdatedOn { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public DateTime CreatedOn { get; set; } = DateTime.Now;
+    public DateTime? UpdatedOn { get; set; }
 }
